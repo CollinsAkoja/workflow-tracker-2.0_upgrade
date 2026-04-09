@@ -1,0 +1,2319 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workflow – Team Task, Communication & Social Media Automation Platform</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/poppins@5.0.14/index.css">
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        heading: ['Poppins', 'sans-serif'],
+      },
+      colors: {
+        primary: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a8a' },
+        accent: { 50:'#f5f3ff',100:'#ede9fe',200:'#ddd6fe',300:'#c4b5fd',400:'#a78bfa',500:'#8b5cf6',600:'#7c3aed',700:'#6d28d9',800:'#5b21b6',900:'#4c1d95' },
+        surface: { 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',700:'#334155',800:'#1e293b',900:'#0f172a' }
+      }
+    }
+  }
+}
+</script>
+<style>
+  @import url('https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/index.css');
+  @import url('https://cdn.jsdelivr.net/npm/@fontsource/poppins@5.0.14/index.css');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; }
+  h1,h2,h3,h4,h5,h6 { font-family: 'Poppins', sans-serif; }
+  
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  .dark ::-webkit-scrollbar-thumb { background: #475569; }
+  
+  .fade-in { animation: fadeIn 0.4s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .slide-in { animation: slideIn 0.4s ease-out; }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+  
+  .pulse-dot { animation: pulseDot 2s infinite; }
+  @keyframes pulseDot { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+  
+  .pulse-ring { animation: pulseRing 2s infinite; }
+  @keyframes pulseRing { 0% { transform: scale(0.95); opacity: 0.7; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.7; } }
+  
+  .glass { backdrop-filter: blur(12px); background: rgba(255,255,255,0.85); }
+  .dark .glass { backdrop-filter: blur(12px); background: rgba(15,23,42,0.85); }
+  
+  .gradient-text { background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .card-hover { transition: all 0.3s ease; }
+  .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
+  
+  .theme-toggle { position: relative; width: 64px; height: 32px; cursor: pointer; }
+  .theme-toggle input { display: none; }
+  .theme-slider { position: absolute; inset: 0; background: #e2e8f0; border-radius: 16px; transition: 0.3s; }
+  .theme-slider::before { content: ''; position: absolute; left: 3px; top: 3px; width: 26px; height: 26px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+  input:checked + .theme-slider { background: #6366f1; }
+  input:checked + .theme-slider::before { transform: translateX(32px); }
+  
+  .chat-bubble { position: relative; max-width: 70%; padding: 10px 14px; border-radius: 12px; margin: 6px 0; }
+  .chat-sent { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+  .chat-received { background: #f1f5f9; color: #1e293b; align-self: flex-start; border-bottom-left-radius: 4px; }
+  .dark .chat-received { background: #1e293b; color: #f1f5f9; }
+  
+  .progress-ring { transition: stroke-dashoffset 0.5s ease-in-out; }
+  
+  .notification-badge { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; background: #ef4444; color: white; font-size: 10px; font-weight: bold; border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: pulseDot 1.5s infinite; }
+  
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  .modal.active { opacity: 1; pointer-events: all; }
+  .modal-content { background: white; border-radius: 16px; padding: 24px; max-width: 90%; width: 480px; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: transform 0.3s; }
+  .dark .modal-content { background: #1e293b; }
+  .modal.active .modal-content { transform: scale(1); }
+  
+  .file-upload-zone { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 24px; text-align: center; transition: all 0.3s; cursor: pointer; }
+  .file-upload-zone:hover { border-color: #3b82f6; background: rgba(59,130,246,0.05); }
+  .dark .file-upload-zone { border-color: #475569; }
+  
+  .kanban-col { min-height: 400px; }
+  .kanban-card { transition: all 0.2s; cursor: grab; }
+  .kanban-card:active { cursor: grabbing; transform: rotate(2deg); }
+  
+  .video-preview { position: relative; border-radius: 16px; overflow: hidden; background: #000; aspect-ratio: 4/3; width: 100%; max-width: 360px; margin: 0 auto; }
+  .video-preview video { width: 100%; height: 100%; object-fit: cover; }
+  
+  .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
+  .status-pending { background: #fef3c7; color: #92400e; }
+  .status-completed { background: #d1fae5; color: #065f46; }
+  .status-progress { background: #dbeafe; color: #1e40af; }
+  .status-high { background: #fee2e2; color: #991b1b; }
+  .status-danger { background: #fee2e2; color: #991b1b; border: 1px solid #ef4444; animation: pulseRing 2s infinite; }
+  .status-success { background: #d1fae5; color: #065f46; }
+  .dark .status-pending { background: #78350f; color: #fef3c7; }
+  .dark .status-completed { background: #064e3b; color: #d1fae5; }
+  .dark .status-progress { background: #1e3a8a; color: #dbeafe; }
+  .dark .status-high { background: #7f1d1d; color: #fee2e2; }
+  .dark .status-danger { background: #7f1d1d; color: #fee2e2; }
+  .dark .status-success { background: #064e3b; color: #d1fae5; }
+  
+  .tab-btn { padding: 8px 16px; border-radius: 8px; font-weight: 500; transition: all 0.2s; cursor: pointer; border: none; background: transparent; color: inherit; }
+  .tab-btn.active { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; }
+  .dark .tab-btn:not(.active) { background: #1e293b; }
+  
+  .sidebar-item { padding: 10px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+  .sidebar-item:hover { background: rgba(59,130,246,0.1); }
+  .sidebar-item.active { background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15)); color: #3b82f6; font-weight: 600; }
+  .dark .sidebar-item.active { color: #60a5fa; }
+  
+  .input-field { width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; background: white; transition: all 0.2s; font-size: 14px; }
+  .input-field:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+  .dark .input-field { background: #0f172a; border-color: #334155; color: white; }
+  .dark .input-field:focus { border-color: #60a5fa; }
+  
+  .btn-primary { padding: 10px 20px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 14px; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-secondary { padding: 10px 20px; background: #f1f5f9; color: #1e293b; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 14px; }
+  .dark .btn-secondary { background: #1e293b; color: white; border-color: #334155; }
+  
+  .face-scan-line {
+    position: absolute;
+    left: 5%;
+    right: 5%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #10b981, transparent);
+    border-radius: 2px;
+    animation: scanLine 2s ease-in-out infinite;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+  }
+  @keyframes scanLine {
+    0%, 100% { top: 15%; opacity: 0; }
+    10% { opacity: 1; }
+    50% { top: 85%; }
+    90% { opacity: 1; }
+  }
+  
+  .face-overlay {
+    position: absolute;
+    inset: 0;
+    border: 3px solid transparent;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .face-overlay.verifying {
+    border-color: rgba(16, 185, 129, 0.5);
+  }
+  .face-overlay .corner {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-color: #10b981;
+    border-style: solid;
+  }
+  .face-overlay .corner.tl { top: 20%; left: 20%; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+  .face-overlay .corner.tr { top: 20%; right: 20%; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+  .face-overlay .corner.bl { bottom: 20%; left: 20%; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+  .face-overlay .corner.br { bottom: 20%; right: 20%; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+  
+  .alert-banner {
+    animation: shake 0.5s ease-in-out;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+</style>
+</head>
+<body class="bg-surface-50 dark:bg-surface-900 text-surface-800 dark:text-surface-200 transition-colors duration-300">
+
+<div id="app" class="min-h-screen">
+  <!-- ==================== LOGIN SCREEN ==================== -->
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <div class="glass rounded-2xl shadow-2xl p-8 fade-in border border-surface-200 dark:border-surface-700">
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">W</div>
+          <h1 class="text-2xl font-bold gradient-text">Workflow</h1>
+          <p class="text-surface-500 dark:text-surface-400 mt-2 text-sm">Enterprise Productivity Platform</p>
+        </div>
+
+        <form id="loginForm" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium mb-1.5 text-surface-700 dark:text-surface-300">Username</label>
+            <input type="text" id="loginUsername" class="input-field" placeholder="Enter your username" value="admin" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1.5 text-surface-700 dark:text-surface-300">Password</label>
+            <input type="password" id="loginPassword" class="input-field" placeholder="Enter your password" value="admin123" required>
+          </div>
+
+          <button type="submit" class="btn-primary w-full py-3 text-base shadow-lg shadow-blue-500/25">
+            <svg class="w-5 h-5 inline mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+            Sign In
+          </button>
+        </form>
+
+        <div class="mt-6 text-center">
+          <p class="text-xs text-surface-400">Demo credentials: <span class="font-mono bg-surface-100 dark:bg-surface-800 px-1.5 py-0.5 rounded">admin</span> / <span class="font-mono bg-surface-100 dark:bg-surface-800 px-1.5 py-0.5 rounded">admin123</span> or <span class="font-mono bg-surface-100 dark:bg-surface-800 px-1.5 py-0.5 rounded">staff</span> / <span class="font-mono bg-surface-100 dark:bg-surface-800 px-1.5 py-0.5 rounded">staff123</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FACE VERIFICATION SCREEN ==================== -->
+  <div id="faceScreen" style="display:none" class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <div class="glass rounded-2xl shadow-2xl p-8 fade-in border border-surface-200 dark:border-surface-700">
+        <!-- Step 1: Initial State -->
+        <div id="faceStep1">
+          <div class="text-center mb-6">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center shadow-lg">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <h2 class="text-xl font-bold mb-2">Identity Verification</h2>
+            <p class="text-surface-500 dark:text-surface-400 text-sm">Welcome, <span id="faceUserName" class="font-semibold text-surface-700 dark:text-surface-300">User</span>! Please verify your identity with facial recognition to continue.</p>
+          </div>
+
+          <div class="video-preview mb-4" id="faceVideoPreview">
+            <video id="faceVideo" autoplay playsinline muted style="display:none"></video>
+            <canvas id="faceCaptureCanvas" style="display:none"></canvas>
+            <div id="facePlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-surface-400">
+              <svg class="w-16 h-16 mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <span class="text-sm font-medium">Camera not active</span>
+            </div>
+            <div id="faceScanLine" class="face-scan-line" style="display:none"></div>
+            <div id="faceOverlay" class="face-overlay" style="display:none">
+              <div class="corner tl"></div>
+              <div class="corner tr"></div>
+              <div class="corner bl"></div>
+              <div class="corner br"></div>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <span class="status-badge status-pending" id="faceVerificationStatus">Waiting</span>
+          </div>
+
+          <button type="button" id="startFaceVerificationBtn" class="btn-primary w-full mt-5 py-3 text-base" onclick="startFaceVerification()">
+            <svg class="w-5 h-5 inline mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            Start Face Verification
+          </button>
+
+          <button type="button" class="btn-secondary w-full mt-3 text-sm text-surface-500" onclick="backToLogin()">
+            ← Back to Login
+          </button>
+        </div>
+
+        <!-- Step 2: Security Breach -->
+        <div id="faceStepBreach" style="display:none">
+          <div class="text-center mb-6">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center alert-banner">
+              <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <h2 class="text-xl font-bold text-red-600 mb-2">Security Breach Alert!</h2>
+            <p class="text-surface-600 dark:text-surface-400 text-sm">Facial recognition failed. This incident has been reported to administrators.</p>
+          </div>
+
+          <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-5 text-sm">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <p class="text-surface-500 dark:text-surface-400 text-xs">Username Attempted</p>
+                <p class="font-semibold text-red-700 dark:text-red-400" id="breachUsername">—</p>
+              </div>
+              <div>
+                <p class="text-surface-500 dark:text-surface-400 text-xs">Timestamp</p>
+                <p class="font-semibold text-red-700 dark:text-red-400" id="breachTimestamp">—</p>
+              </div>
+              <div>
+                <p class="text-surface-500 dark:text-surface-400 text-xs">IP Address</p>
+                <p class="font-semibold text-red-700 dark:text-red-400" id="breachIP">—</p>
+              </div>
+              <div>
+                <p class="text-surface-500 dark:text-surface-400 text-xs">Location</p>
+                <p class="font-semibold text-red-700 dark:text-red-400" id="breachLocation">—</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-xs text-surface-500 text-center mb-4">Alerts sent to administrators via WhatsApp, Telegram, and Email</p>
+
+          <button type="button" class="btn-secondary w-full" onclick="backToLogin()">
+            Return to Login
+          </button>
+        </div>
+
+        <!-- Step 3: Loading/Verifying -->
+        <div id="faceStepVerifying" style="display:none">
+          <div class="text-center">
+            <div class="w-20 h-20 mx-auto mb-4 relative">
+              <div class="absolute inset-0 rounded-full border-4 border-surface-200 dark:border-surface-700"></div>
+              <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-green-500 animate-spin"></div>
+              <svg class="w-10 h-10 absolute inset-0 m-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <h2 class="text-xl font-bold mb-2">Verifying Identity...</h2>
+            <p class="text-surface-500 dark:text-surface-400 text-sm" id="faceVerificationProgress">Analyzing facial features...</p>
+          </div>
+        </div>
+
+        <!-- Step 4: Success -->
+        <div id="faceStepSuccess" style="display:none">
+          <div class="text-center">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+              <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h2 class="text-xl font-bold mb-2 text-green-600">Verification Successful!</h2>
+            <p class="text-surface-500 dark:text-surface-400 text-sm mb-6">Identity confirmed. Redirecting to your dashboard...</p>
+            
+            <div class="w-full bg-surface-100 dark:bg-surface-700 rounded-full h-2 mb-6">
+              <div id="successProgress" class="h-full bg-green-500 rounded-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+
+            <button type="button" class="btn-primary w-full" onclick="proceedToDashboard()">
+              Continue to Dashboard →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN DASHBOARD ==================== -->
+  <div id="dashboardScreen" style="display:none" class="min-h-screen flex">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 glass border-r border-surface-200 dark:border-surface-700 flex flex-col h-screen sticky top-0 transition-all duration-300">
+      <div class="p-4 border-b border-surface-200 dark:border-surface-700">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">W</div>
+          <div>
+            <h2 class="font-bold text-lg gradient-text">Workflow</h2>
+            <p class="text-xs text-surface-500" id="userRole">Admin</p>
+          </div>
+        </div>
+      </div>
+
+      <nav class="flex-1 p-3 overflow-y-auto" id="sidebarNav">
+        <!-- Dynamic sidebar items -->
+      </nav>
+
+      <!-- Theme Toggle at Bottom of Sidebar -->
+      <div class="p-4 border-t border-surface-200 dark:border-surface-700">
+        <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium">Theme</span>
+            <label class="theme-toggle">
+              <input type="checkbox" id="sidebarThemeToggle" onchange="toggleTheme()">
+              <span class="theme-slider"></span>
+            </label>
+          </div>
+          <div class="flex justify-between text-xs text-surface-500">
+            <span>☀️ Light</span>
+            <span>🌙 Dark</span>
+          </div>
+        </div>
+        <div class="sidebar-item mt-3 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20" onclick="logout()">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>Logout</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-auto">
+      <!-- Top Header -->
+      <header class="glass border-b border-surface-200 dark:border-surface-700 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+        <h1 class="text-xl font-heading font-bold" id="pageTitle">Dashboard</h1>
+        <div class="flex items-center gap-4">
+          <button class="relative p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-800 transition" onclick="toggleNotifications()">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span class="notification-badge" id="notifBadge" style="display:none">3</span>
+          </button>
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold shadow-md" id="avatarInitial">A</div>
+            <div class="hidden sm:block">
+              <p class="text-sm font-semibold" id="userName">Admin User</p>
+              <p class="text-xs text-surface-500" id="userEmail">admin@workflow.io</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div id="contentArea" class="p-6">
+        <!-- Dynamic content -->
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Notification Panel -->
+<div id="notificationPanel" class="fixed right-4 top-16 w-80 bg-white dark:bg-surface-800 rounded-xl shadow-2xl border border-surface-200 dark:border-surface-700 z-50 p-4 fade-in" style="display:none">
+  <div class="flex items-center justify-between mb-3">
+    <h3 class="font-bold">Notifications</h3>
+    <button class="text-xs text-blue-500 hover:underline" onclick="markAllRead()">Mark all read</button>
+  </div>
+  <div id="notificationList" class="space-y-2 max-h-72 overflow-y-auto"></div>
+</div>
+
+<!-- Chat Modal -->
+<div id="chatModal" class="modal">
+  <div class="modal-content w-full max-w-2xl h-[80vh] flex flex-col p-0">
+    <div class="p-4 border-b border-surface-200 dark:border-surface-700 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold" id="chatAvatar">S</div>
+        <div>
+          <h3 class="font-bold" id="chatTitle">Staff Chat</h3>
+          <p class="text-xs text-green-500 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span> Online</p>
+        </div>
+      </div>
+      <button onclick="closeChat()" class="p-1 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="chatMessages" class="flex-1 overflow-y-auto p-4 flex flex-col gap-1"></div>
+    <div class="p-3 border-t border-surface-200 dark:border-surface-700 flex items-center gap-2">
+      <button class="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition" title="Attach file">
+        <svg class="w-5 h-5 text-surface-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+      </button>
+      <input type="text" id="chatInput" class="flex-1 input-field" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMessage()">
+      <button class="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition" title="Voice message">
+        <svg class="w-5 h-5 text-surface-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+      </button>
+      <button class="btn-primary rounded-full w-10 h-10 p-0 flex items-center justify-center" onclick="sendMessage()">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Task Detail Modal -->
+<div id="taskDetailModal" class="modal">
+  <div class="modal-content p-0 overflow-hidden w-full max-w-lg">
+    <div class="p-4 border-b border-surface-200 dark:border-surface-700 flex items-center justify-between">
+      <h3 class="text-lg font-bold" id="taskDetailTitle">Task Details</h3>
+      <button onclick="closeTaskModal()" class="p-1 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-4 space-y-4" id="taskDetailContent"></div>
+  </div>
+</div>
+
+<!-- Create Task Modal -->
+<div id="createTaskModal" class="modal">
+  <div class="modal-content p-0 overflow-hidden w-full max-w-lg">
+    <div class="p-4 border-b border-surface-200 dark:border-surface-700 flex items-center justify-between">
+      <h3 class="text-lg font-bold">Create New Task</h3>
+      <button onclick="closeCreateTaskModal()" class="p-1 hover:bg-surface-100 dark:hover:bg-surface-700 rounded-lg transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form class="p-4 space-y-4" onsubmit="handleCreateTask(event)">
+      <div>
+        <label class="block text-sm font-medium mb-1">Task Title</label>
+        <input type="text" id="newTaskTitle" class="input-field" placeholder="Enter task title" required>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Description</label>
+        <textarea id="newTaskDesc" class="input-field" rows="3" placeholder="Enter task description" required></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Priority</label>
+          <select id="newTaskPriority" class="input-field">
+            <option value="Low">Low</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Deadline</label>
+          <input type="date" id="newTaskDeadline" class="input-field" required>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Assign To</label>
+        <select id="newTaskAssignee" class="input-field"></select>
+      </div>
+      <button type="submit" class="btn-primary w-full">Create Task</button>
+    </form>
+  </div>
+</div>
+
+<script>
+// ==================== STATE MANAGEMENT ====================
+const AppState = {
+  currentUser: null,
+  pendingUser: null,
+  role: 'admin',
+  darkMode: false,
+  currentPage: 'dashboard',
+  cameraStream: null,
+  chatTarget: null,
+  chatMessages: [],
+  notifications: [],
+  faceVerificationStep: 1,
+  tasks: [
+    { id: 1, title: 'Update client database', desc: 'Review and update all client records with new information from Q1 meetings', priority: 'High', status: 'progress', deadline: '2026-04-15', assignedTo: 'staff1', files: [], createdAt: new Date().toISOString() },
+    { id: 2, title: 'Prepare monthly report', desc: 'Generate analytics report for March 2026 including all KPIs', priority: 'Medium', status: 'pending', deadline: '2026-04-20', assignedTo: 'staff1', files: [], createdAt: new Date().toISOString() },
+    { id: 3, title: 'Fix login page bug', desc: 'Resolve the authentication timeout issue on the login page reported by 3 users', priority: 'High', status: 'pending', deadline: '2026-04-12', assignedTo: 'staff2', files: [], createdAt: new Date().toISOString() },
+    { id: 4, title: 'Design new marketing banner', desc: 'Create promotional banners for Q2 campaign across all platforms', priority: 'Low', status: 'completed', deadline: '2026-04-10', assignedTo: 'staff1', files: ['banner_v1.png', 'banner_v2.png'], createdAt: new Date().toISOString() },
+    { id: 5, title: 'Schedule social posts', desc: 'Schedule posts for all connected platforms this week', priority: 'Medium', status: 'progress', deadline: '2026-04-18', assignedTo: 'staff2', files: [], createdAt: new Date().toISOString() },
+    { id: 6, title: 'Update API documentation', desc: 'Document all new endpoints added in the latest release', priority: 'Low', status: 'pending', deadline: '2026-04-25', assignedTo: 'staff1', files: [], createdAt: new Date().toISOString() }
+  ],
+  users: [
+    { id: 1, username: 'admin', password: 'admin123', role: 'Super Admin', name: 'Admin User', avatar: 'A', status: 'active', email: 'admin@workflow.io' },
+    { id: 2, username: 'staff1', password: 'staff123', role: 'Staff', name: 'Sarah Johnson', avatar: 'S', status: 'active', email: 'sarah@workflow.io' },
+    { id: 3, username: 'staff2', password: 'staff123', role: 'Staff', name: 'Mike Chen', avatar: 'M', status: 'active', email: 'mike@workflow.io' }
+  ],
+  socialAccounts: [
+    { platform: 'Instagram', connected: true, followers: 12400, posts: 156, lastSync: '2 mins ago' },
+    { platform: 'Facebook', connected: true, followers: 8900, posts: 89, lastSync: '5 mins ago' },
+    { platform: 'LinkedIn', connected: true, followers: 3400, posts: 45, lastSync: '1 hour ago' },
+    { platform: 'Twitter/X', connected: false, followers: 0, posts: 0, lastSync: 'Never' },
+    { platform: 'Threads', connected: false, followers: 0, posts: 0, lastSync: 'Never' },
+    { platform: 'YouTube', connected: true, followers: 5600, posts: 23, lastSync: '30 mins ago' },
+    { platform: 'WhatsApp', connected: true, followers: 890, posts: 0, lastSync: '15 mins ago' }
+  ],
+  socialPosts: [
+    { id: 1, content: 'Exciting Q2 updates coming soon! 🚀 We\'re launching new features that will transform how your team works. Stay tuned! #innovation #growth #productivity', platforms: ['Instagram','LinkedIn','Twitter'], status: 'published', engagement: { likes: 245, comments: 32, shares: 18 }, date: '2026-04-09' },
+    { id: 2, content: 'Join our webinar next week on productivity hacks! Learn from industry experts and take your team performance to the next level. Link in bio. 📈', platforms: ['Facebook','LinkedIn'], status: 'scheduled', engagement: { likes: 0, comments: 0, shares: 0 }, date: '2026-04-12' }
+  ],
+  kanbanTasks: [
+    { id: 'k1', title: 'API Integration', priority: 'High', column: 'todo' },
+    { id: 'k2', title: 'UI Redesign', priority: 'Medium', column: 'inprogress' },
+    { id: 'k3', title: 'Testing Phase', priority: 'High', column: 'review' },
+    { id: 'k4', title: 'Documentation', priority: 'Low', column: 'done' }
+  ]
+};
+
+// ==================== THEME MANAGEMENT ====================
+function toggleTheme() {
+  AppState.darkMode = !AppState.darkMode;
+  document.documentElement.classList.toggle('dark');
+  localStorage.setItem('workflow-theme', AppState.darkMode ? 'dark' : 'light');
+  const toggles = document.querySelectorAll('input[type="checkbox"][id*="ThemeToggle"]');
+  toggles.forEach(t => t.checked = AppState.darkMode);
+  updateCharts();
+}
+
+function loadTheme() {
+  const saved = localStorage.getItem('workflow-theme');
+  if (saved === 'dark') {
+    AppState.darkMode = true;
+    document.documentElement.classList.add('dark');
+    setTimeout(() => {
+      const toggles = document.querySelectorAll('input[type="checkbox"][id*="ThemeToggle"]');
+      toggles.forEach(t => t.checked = true);
+    }, 100);
+  }
+}
+
+// ==================== AUTHENTICATION ====================
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  
+  const user = AppState.users.find(u => u.username === username && u.password === password);
+  if (user) {
+    if (user.status === 'suspended') {
+      alert('This account has been suspended. Contact your administrator.');
+      return;
+    }
+    // Store pending user, show face verification
+    AppState.pendingUser = user;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('faceScreen').style.display = 'flex';
+    setupFaceScreen(user);
+  } else {
+    // Show error with shake animation
+    const form = document.getElementById('loginForm');
+    form.classList.add('alert-banner');
+    setTimeout(() => form.classList.remove('alert-banner'), 500);
+    alert('Invalid credentials. Try admin/admin123 or staff/staff123');
+  }
+});
+
+function setupFaceScreen(user) {
+  // Reset face screen state
+  document.getElementById('faceStep1').style.display = 'block';
+  document.getElementById('faceStepBreach').style.display = 'none';
+  document.getElementById('faceStepVerifying').style.display = 'none';
+  document.getElementById('faceStepSuccess').style.display = 'none';
+  document.getElementById('faceUserName').textContent = user.name;
+  document.getElementById('faceVerificationStatus').className = 'status-badge status-pending';
+  document.getElementById('faceVerificationStatus').textContent = 'Waiting';
+  document.getElementById('startFaceVerificationBtn').style.display = 'block';
+  document.getElementById('startFaceVerificationBtn').disabled = false;
+  document.getElementById('startFaceVerificationBtn').innerHTML = `<svg class="w-5 h-5 inline mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> Start Face Verification`;
+  
+  // Reset placeholders
+  document.getElementById('facePlaceholder').style.display = 'flex';
+  document.getElementById('faceVideo').style.display = 'none';
+  document.getElementById('faceScanLine').style.display = 'none';
+  document.getElementById('faceOverlay').style.display = 'none';
+  
+  // Stop camera if running
+  if (AppState.cameraStream) {
+    AppState.cameraStream.getTracks().forEach(track => track.stop());
+    AppState.cameraStream = null;
+  }
+}
+
+function backToLogin() {
+  if (AppState.cameraStream) {
+    AppState.cameraStream.getTracks().forEach(track => track.stop());
+    AppState.cameraStream = null;
+  }
+  document.getElementById('faceScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  AppState.pendingUser = null;
+}
+
+function startFaceVerification() {
+  const video = document.getElementById('faceVideo');
+  const placeholder = document.getElementById('facePlaceholder');
+  const btn = document.getElementById('startFaceVerificationBtn');
+  const scanLine = document.getElementById('faceScanLine');
+  const overlay = document.getElementById('faceOverlay');
+  const status = document.getElementById('faceVerificationStatus');
+  
+  btn.disabled = true;
+  
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 } })
+      .then(stream => {
+        AppState.cameraStream = stream;
+        video.srcObject = stream;
+        video.style.display = 'block';
+        placeholder.style.display = 'none';
+        scanLine.style.display = 'block';
+        overlay.style.display = 'flex';
+        overlay.classList.add('verifying');
+        
+        status.className = 'status-badge status-progress';
+        status.textContent = 'Camera Active';
+        
+        btn.innerHTML = `<svg class="w-5 h-5 inline mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Processing...`;
+        
+        // Start verification flow
+        setTimeout(() => beginFaceAnalysis(), 1500);
+      })
+      .catch(err => {
+        // Camera not available, simulate verification
+        console.log('Camera access denied or unavailable');
+        status.className = 'status-badge status-pending';
+        status.textContent = 'Camera Unavailable';
+        btn.innerHTML = `<svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> Start Face Verification`;
+        btn.disabled = false;
+        
+        // For demo: proceed with simulated verification
+        if (confirm('Camera access denied. Use simulated face verification for demo?')) {
+          simulateFaceVerification();
+        }
+      });
+  } else {
+    alert('Your browser does not support camera access.');
+    btn.disabled = false;
+  }
+}
+
+function beginFaceAnalysis() {
+  const status = document.getElementById('faceVerificationStatus');
+  status.textContent = 'Analyzing...';
+  
+  // Capture frame
+  const video = document.getElementById('faceVideo');
+  const canvas = document.getElementById('faceCaptureCanvas');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+  
+  // Simulate analysis with progressive steps
+  const steps = [
+    { delay: 500, text: 'Detecting facial features...' },
+    { delay: 1000, text: 'Mapping key landmarks...' },
+    { delay: 1500, text: 'Comparing with profile...' },
+    { delay: 2000, text: 'Verifying identity...' }
+  ];
+  
+  steps.forEach(step => {
+    setTimeout(() => {
+      document.getElementById('faceVerificationProgress') && (document.getElementById('faceVerificationProgress').textContent = step.text);
+    }, step.delay);
+  });
+  
+  setTimeout(() => {
+    completeFaceVerification(true);
+  }, 2500);
+}
+
+function simulateFaceVerification() {
+  // For demo without camera
+  document.getElementById('facePlaceholder').style.display = 'none';
+  document.getElementById('faceScanLine').style.display = 'block';
+  document.getElementById('faceOverlay').style.display = 'flex';
+  document.getElementById('faceOverlay').classList.add('verifying');
+  document.getElementById('faceVerificationStatus').textContent = 'Simulating...';
+  
+  setTimeout(() => completeFaceVerification(true), 2000);
+}
+
+function completeFaceVerification(success) {
+  const user = AppState.pendingUser;
+  
+  if (success) {
+    // Show success step
+    document.getElementById('faceStep1').style.display = 'none';
+    document.getElementById('faceStepSuccess').style.display = 'block';
+    
+    // Animate progress bar
+    setTimeout(() => {
+      document.getElementById('successProgress').style.width = '100%';
+    }, 100);
+  } else {
+    // Show breach step
+    document.getElementById('faceStep1').style.display = 'none';
+    document.getElementById('faceStepBreach').style.display = 'block';
+    
+    document.getElementById('breachUsername').textContent = user ? user.username : 'Unknown';
+    document.getElementById('breachTimestamp').textContent = new Date().toLocaleString();
+    document.getElementById('breachIP').textContent = generateRandomIP();
+    document.getElementById('breachLocation').textContent = 'Location data pending';
+    
+    // Stop camera
+    if (AppState.cameraStream) {
+      AppState.cameraStream.getTracks().forEach(track => track.stop());
+      AppState.cameraStream = null;
+    }
+  }
+}
+
+function generateRandomIP() {
+  return `${Math.floor(Math.random()*223)+1}.${Math.floor(Math.random()*256)}.${Math.floor(Math.random()*256)}.${Math.floor(Math.random()*256)}`;
+}
+
+function proceedToDashboard() {
+  const user = AppState.pendingUser;
+  if (!user) return;
+  
+  AppState.currentUser = user;
+  AppState.role = user.role.includes('Admin') ? 'admin' : 'staff';
+  
+  // Stop camera
+  if (AppState.cameraStream) {
+    AppState.cameraStream.getTracks().forEach(track => track.stop());
+    AppState.cameraStream = null;
+  }
+  
+  document.getElementById('faceScreen').style.display = 'none';
+  document.getElementById('dashboardScreen').style.display = 'flex';
+  
+  // Setup dashboard
+  document.getElementById('userRole').textContent = user.role;
+  document.getElementById('userName').textContent = user.name;
+  document.getElementById('userEmail').textContent = user.email;
+  document.getElementById('avatarInitial').textContent = user.avatar;
+  
+  setupSidebar();
+  navigateTo('dashboard');
+  loadNotifications();
+}
+
+// ==================== SIDEBAR ====================
+function setupSidebar() {
+  const nav = document.getElementById('sidebarNav');
+  let items;
+  
+  if (AppState.role === 'admin') {
+    items = [
+      { id: 'dashboard', label: 'Dashboard', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>' },
+      { id: 'tasks', label: 'Task Management', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>' },
+      { id: 'users', label: 'User Management', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>' },
+      { id: 'kanban', label: 'Kanban Board', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>' },
+      { id: 'chat', label: 'Live Chat', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>' },
+      { id: 'social', label: 'Social Media', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>' },
+      { id: 'analytics', label: 'Analytics', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>' },
+      { id: 'reports', label: 'Reports & Export', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>' }
+    ];
+  } else {
+    items = [
+      { id: 'dashboard', label: 'Dashboard', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>' },
+      { id: 'tasks', label: 'My Tasks', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>' },
+      { id: 'chat', label: 'Live Chat', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>' },
+      { id: 'analytics', label: 'My Analytics', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>' }
+    ];
+  }
+  
+  nav.innerHTML = items.map(item => `
+    <div class="sidebar-item" id="nav-${item.id}" onclick="navigateTo('${item.id}')">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">${item.icon}</svg>
+      <span>${item.label}</span>
+    </div>
+  `).join('');
+}
+
+function navigateTo(page) {
+  AppState.currentPage = page;
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById(`nav-${page}`);
+  if (navEl) navEl.classList.add('active');
+  
+  const titles = {
+    dashboard: 'Dashboard',
+    tasks: AppState.role === 'admin' ? 'Task Management' : 'My Tasks',
+    users: 'User Management',
+    kanban: 'Kanban Board',
+    chat: 'Live Chat',
+    social: 'Social Media Manager',
+    analytics: 'Analytics & Reports',
+    reports: 'Reports & Export'
+  };
+  
+  document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
+  
+  switch(page) {
+    case 'dashboard': renderDashboard(); break;
+    case 'tasks': renderTasks(); break;
+    case 'users': renderUsers(); break;
+    case 'kanban': renderKanban(); break;
+    case 'chat': renderChat(); break;
+    case 'social': renderSocialMedia(); break;
+    case 'analytics': renderAnalytics(); break;
+    case 'reports': renderReports(); break;
+  }
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard() {
+  const content = document.getElementById('contentArea');
+  const isStaff = AppState.role === 'staff';
+  
+  const todayCompleted = AppState.tasks.filter(t => t.status === 'completed').length;
+  const inProgress = AppState.tasks.filter(t => t.status === 'progress').length;
+  const pending = AppState.tasks.filter(t => t.status === 'pending').length;
+  
+  content.innerHTML = `
+    <div class="fade-in">
+      <!-- Welcome Banner -->
+      <div class="mb-6 p-6 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 text-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+        <div class="relative z-10">
+          <h2 class="text-2xl font-bold mb-2">Welcome back, ${AppState.currentUser.name}! 👋</h2>
+          <p class="opacity-90 text-sm">${isStaff ? 'Here are your assigned tasks for today. Keep up the great work!' : 'Here\'s an overview of your team\'s productivity metrics and recent activity.'}</p>
+        </div>
+      </div>
+      
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white dark:bg-surface-800 rounded-xl p-5 card-hover border border-surface-100 dark:border-surface-700">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-surface-500 dark:text-surface-400 text-sm font-medium">Total Tasks</span>
+            <div class="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-surface-800 dark:text-white">${AppState.tasks.length}</p>
+          <p class="text-xs text-green-600 mt-1 font-medium">↑ 12% from last month</p>
+        </div>
+        
+        <div class="bg-white dark:bg-surface-800 rounded-xl p-5 card-hover border border-surface-100 dark:border-surface-700">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-surface-500 dark:text-surface-400 text-sm font-medium">Completed</span>
+            <div class="w-10 h-10 rounded-lg bg-green-50 dark:bg-green-900/30 flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-surface-800 dark:text-white">${todayCompleted}</p>
+          <p class="text-xs text-green-600 mt-1 font-medium">↑ 8% from last week</p>
+        </div>
+        
+        <div class="bg-white dark:bg-surface-800 rounded-xl p-5 card-hover border border-surface-100 dark:border-surface-700">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-surface-500 dark:text-surface-400 text-sm font-medium">In Progress</span>
+            <div class="w-10 h-10 rounded-lg bg-yellow-50 dark:bg-yellow-900/30 flex items-center justify-center">
+              <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-surface-800 dark:text-white">${inProgress}</p>
+          <p class="text-xs text-surface-500 mt-1 font-medium">Active tasks</p>
+        </div>
+        
+        <div class="bg-white dark:bg-surface-800 rounded-xl p-5 card-hover border border-surface-100 dark:border-surface-700">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-surface-500 dark:text-surface-400 text-sm font-medium">Productivity</span>
+            <div class="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center">
+              <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-surface-800 dark:text-white">${Math.round((todayCompleted / Math.max(AppState.tasks.length, 1)) * 100)}%</p>
+          <p class="text-xs text-green-600 mt-1 font-medium">↑ 5% this week</p>
+        </div>
+      </div>
+      
+      <!-- Charts and Activity -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Weekly Progress Chart -->
+        <div class="lg:col-span-2 bg-white dark:bg-surface-800 rounded-xl p-5 border border-surface-100 dark:border-surface-700">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold">Weekly Progress</h3>
+            <select class="input-field text-sm py-1.5 w-auto">
+              <option>This Week</option>
+              <option>Last Week</option>
+              <option>This Month</option>
+            </select>
+          </div>
+          <canvas id="weeklyChart" height="250"></canvas>
+        </div>
+        
+        <!-- Activity Feed -->
+        <div class="bg-white dark:bg-surface-800 rounded-xl p-5 border border-surface-100 dark:border-surface-700">
+          <h3 class="font-bold mb-4">Recent Activity</h3>
+          <div class="space-y-3">
+            ${AppState.tasks.slice(0, 5).map(t => `
+              <div class="flex items-start gap-3 pb-3 border-b border-surface-100 dark:border-surface-700 last:border-0 last:pb-0">
+                <div class="w-8 h-8 rounded-full ${t.status === 'completed' ? 'bg-green-50 dark:bg-green-900/30 text-green-600' : t.status === 'progress' ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600' : 'bg-yellow-50 dark:bg-yellow-900/30 text-yellow-600'} flex items-center justify-center flex-shrink-0 text-sm font-bold">
+                  ${t.status === 'completed' ? '✓' : t.status === 'progress' ? '⟳' : '○'}
+                </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-medium truncate">${t.title}</p>
+                  <p class="text-xs text-surface-500">${new Date(t.createdAt).toLocaleDateString('en', { month: 'short', day: 'numeric' })} · ${t.priority}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+      
+      ${isStaff ? `
+      <!-- Productivity Tracker for Staff -->
+      <div class="bg-white dark:bg-surface-800 rounded-xl p-5 mb-6 border border-surface-100 dark:border-surface-700">
+        <h3 class="font-bold mb-4">Your Productivity Tracker</h3>
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-sm mb-1"><span class="font-medium">Today</span><span class="text-surface-500">4/5 tasks</span></div>
+            <div class="h-2.5 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full transition-all duration-500" style="width: 80%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1"><span class="font-medium">This Week</span><span class="text-surface-500">18/25 tasks</span></div>
+            <div class="h-2.5 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full transition-all duration-500" style="width: 72%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1"><span class="font-medium">This Month</span><span class="text-surface-500">78/100 tasks</span></div>
+            <div class="h-2.5 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-purple-400 to-pink-500 rounded-full transition-all duration-500" style="width: 78%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1"><span class="font-medium">All Time</span><span class="text-surface-500">432 tasks completed</span></div>
+            <div class="h-2.5 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-orange-400 to-red-500 rounded-full transition-all duration-500" style="width: 90%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      ` : `
+      <!-- Team Performance for Admin -->
+      <div class="bg-white dark:bg-surface-800 rounded-xl p-5 mb-6 border border-surface-100 dark:border-surface-700">
+        <h3 class="font-bold mb-4">Team Performance Overview</h3>
+        <canvas id="teamChart" height="250"></canvas>
+      </div>
+      `}
+    </div>
+  `;
+  
+  setTimeout(() => {
+    renderWeeklyChart();
+    if (!isStaff) renderTeamChart();
+  }, 100);
+}
+
+let weeklyChartInstance = null;
+let teamChartInstance = null;
+
+function renderWeeklyChart() {
+  const ctx = document.getElementById('weeklyChart');
+  if (!ctx) return;
+  if (weeklyChartInstance) weeklyChartInstance.destroy();
+  
+  const isDark = AppState.darkMode;
+  
+  weeklyChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [{
+        label: 'Tasks Completed',
+        data: [3, 5, 4, 6, 4, 2, 3],
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59,130,246,0.1)',
+        fill: true,
+        tension: 0.4,
+        borderWidth: 2,
+        pointRadius: 4,
+        pointBackgroundColor: '#3b82f6'
+      }, {
+        label: 'Tasks Assigned',
+        data: [4, 6, 5, 7, 5, 3, 4],
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139,92,246,0.1)',
+        fill: true,
+        tension: 0.4,
+        borderWidth: 2,
+        pointRadius: 4,
+        pointBackgroundColor: '#8b5cf6'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { usePointStyle: true, padding: 15, font: { family: 'Inter' } } }
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'Inter', size: 11 } } },
+        x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 } } }
+      }
+    }
+  });
+}
+
+function renderTeamChart() {
+  const ctx = document.getElementById('teamChart');
+  if (!ctx) return;
+  if (teamChartInstance) teamChartInstance.destroy();
+  
+  teamChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Sarah J.', 'Mike C.', 'Emily R.', 'John D.', 'Anna K.'],
+      datasets: [{
+        label: 'Tasks Completed',
+        data: [24, 19, 21, 15, 22],
+        backgroundColor: ['#3b82f6', '#8b5cf6', '#06b6d4', '#f59e0b', '#ec4899'],
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: AppState.darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+function updateCharts() {
+  setTimeout(() => {
+    renderWeeklyChart();
+    if (AppState.role === 'admin') renderTeamChart();
+  }, 200);
+}
+
+// ==================== TASKS ====================
+function renderTasks() {
+  const content = document.getElementById('contentArea');
+  const userTasks = AppState.role === 'staff' 
+    ? AppState.tasks.filter(t => t.assignedTo === AppState.currentUser.username || t.assignedTo === 'staff1')
+    : AppState.tasks;
+  
+  content.innerHTML = `
+    <div class="fade-in">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div class="flex gap-2 flex-wrap">
+          <button class="tab-btn active" onclick="filterTasks('all', this)">All (${userTasks.length})</button>
+          <button class="tab-btn" onclick="filterTasks('pending', this)">Pending (${userTasks.filter(t=>t.status==='pending').length})</button>
+          <button class="tab-btn" onclick="filterTasks('progress', this)">In Progress (${userTasks.filter(t=>t.status==='progress').length})</button>
+          <button class="tab-btn" onclick="filterTasks('completed', this)">Completed (${userTasks.filter(t=>t.status==='completed').length})</button>
+        </div>
+        ${AppState.role === 'admin' ? '<button class="btn-primary" onclick="openCreateTaskModal()">+ Create Task</button>' : ''}
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="taskGrid">
+        ${userTasks.map(t => renderTaskCard(t)).join('')}
+      </div>
+      
+      ${userTasks.length === 0 ? `
+        <div class="text-center py-12">
+          <svg class="w-16 h-16 mx-auto text-surface-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <p class="text-surface-500">No tasks found</p>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function renderTaskCard(t) {
+  const isHigh = t.priority === 'High';
+  const isStaff = AppState.role === 'staff';
+  const user = AppState.users.find(u => u.username === t.assignedTo);
+  const isCompleted = t.status === 'completed';
+  
+  return `
+    <div class="bg-white dark:bg-surface-800 rounded-xl p-5 card-hover border border-surface-100 dark:border-surface-700 border-l-4 ${isHigh ? 'border-l-red-500' : 'border-l-blue-500'} ${isCompleted ? 'opacity-75' : ''}">
+      <div class="flex items-start justify-between mb-3">
+        <h4 class="font-bold text-base ${isCompleted ? 'line-through text-surface-500' : ''}">${t.title}</h4>
+        <span class="status-badge ${t.status === 'completed' ? 'status-completed' : t.status === 'progress' ? 'status-progress' : 'status-pending'}">${t.status === 'progress' ? 'In Progress' : t.status}</span>
+      </div>
+      <p class="text-sm text-surface-600 dark:text-surface-400 mb-3 line-clamp-2">${t.desc}</p>
+      <div class="flex items-center gap-4 text-sm text-surface-500 mb-3">
+        <span class="flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          ${t.deadline}
+        </span>
+        <span class="flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          ${user ? user.name : t.assignedTo}
+        </span>
+      </div>
+      <div class="flex items-center justify-between">
+        <div class="flex gap-2">
+          <span class="text-xs px-2 py-1 rounded-full font-medium ${isHigh ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400' : t.priority === 'Medium' ? 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' : 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400'}">${t.priority}</span>
+          ${t.files.length > 0 ? `<span class="text-xs px-2 py-1 rounded-full bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-400">📎 ${t.files.length}</span>` : ''}
+        </div>
+        <div class="flex gap-2">
+          <button class="btn-secondary text-xs px-3 py-1.5" onclick="viewTaskDetail(${t.id})">View</button>
+          ${isStaff && t.status !== 'completed' ? `<button class="btn-primary text-xs px-3 py-1.5" onclick="completeTask(${t.id})">✓ Complete</button>` : ''}
+          ${AppState.role === 'admin' ? `<button class="text-red-400 hover:text-red-600 transition p-1" onclick="deleteTask(${t.id})" title="Delete task"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function filterTasks(status, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  const userTasks = AppState.role === 'staff' 
+    ? AppState.tasks.filter(t => t.assignedTo === AppState.currentUser.username || t.assignedTo === 'staff1')
+    : AppState.tasks;
+  
+  const filtered = status === 'all' ? userTasks : userTasks.filter(t => t.status === status);
+  document.getElementById('taskGrid').innerHTML = filtered.map(t => renderTaskCard(t)).join('');
+  
+  if (filtered.length === 0) {
+    document.getElementById('taskGrid').innerHTML = `
+      <div class="col-span-full text-center py-12">
+        <svg class="w-16 h-16 mx-auto text-surface-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <p class="text-surface-500">No ${status} tasks found</p>
+      </div>
+    `;
+  }
+}
+
+function viewTaskDetail(id) {
+  const task = AppState.tasks.find(t => t.id === id);
+  if (!task) return;
+  
+  const modal = document.getElementById('taskDetailModal');
+  const titleEl = document.getElementById('taskDetailTitle');
+  const contentEl = document.getElementById('taskDetailContent');
+  const isStaff = AppState.role === 'staff';
+  
+  titleEl.textContent = task.title;
+  contentEl.innerHTML = `
+    <div class="space-y-4">
+      <p class="text-surface-600 dark:text-surface-400">${task.desc}</p>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-surface-50 dark:bg-surface-700 rounded-lg p-3">
+          <p class="text-xs text-surface-500 mb-1">Priority</p>
+          <p class="font-semibold ${task.priority === 'High' ? 'text-red-600' : task.priority === 'Medium' ? 'text-yellow-600' : 'text-green-600'}">${task.priority}</p>
+        </div>
+        <div class="bg-surface-50 dark:bg-surface-700 rounded-lg p-3">
+          <p class="text-xs text-surface-500 mb-1">Status</p>
+          <span class="status-badge ${task.status === 'completed' ? 'status-completed' : task.status === 'progress' ? 'status-progress' : 'status-pending'}">${task.status}</span>
+        </div>
+        <div class="bg-surface-50 dark:bg-surface-700 rounded-lg p-3">
+          <p class="text-xs text-surface-500 mb-1">Deadline</p>
+          <p class="font-semibold">${task.deadline}</p>
+        </div>
+        <div class="bg-surface-50 dark:bg-surface-700 rounded-lg p-3">
+          <p class="text-xs text-surface-500 mb-1">Assigned To</p>
+          <p class="font-semibold">${task.assignedTo}</p>
+        </div>
+      </div>
+      
+      ${isStaff && task.status !== 'completed' ? `
+      <div class="border-t border-surface-200 dark:border-surface-700 pt-4">
+        <p class="text-sm font-medium mb-2">Set Priority</p>
+        <div class="flex gap-2">
+          ${['Low','Medium','High'].map(p => `<button class="btn-secondary text-xs px-3 py-1.5 ${task.priority === p ? 'btn-primary' : ''}" onclick="changeTaskPriority(${task.id}, '${p}')">${p}</button>`).join('')}
+        </div>
+        <button class="btn-primary mt-3 w-full" onclick="completeTask(${task.id}); closeTaskModal();">
+          <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Mark as Completed
+        </button>
+      </div>
+      ` : ''}
+      
+      <!-- File Upload -->
+      <div class="border-t border-surface-200 dark:border-surface-700 pt-4">
+        <p class="text-sm font-medium mb-2">Upload Evidence</p>
+        <div class="file-upload-zone" onclick="document.getElementById('fileInput').click()">
+          <svg class="w-8 h-8 mx-auto mb-2 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          <p class="text-sm text-surface-500">Click to upload files</p>
+          <p class="text-xs text-surface-400 mt-1">DOC, DOCX, XLS, XLSX, CSV, PDF, JPG, PNG, GIF, MP4, MOV</p>
+        </div>
+        <input type="file" id="fileInput" class="hidden" multiple onchange="handleFileUpload(this, ${task.id})">
+        ${task.files.length > 0 ? `<div class="mt-3 space-y-1">${task.files.map(f => `<div class="flex items-center gap-2 text-sm bg-surface-50 dark:bg-surface-700 px-3 py-2 rounded-lg"><svg class="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span class="truncate">${f}</span></div>`).join('')}</div>` : ''}
+      </div>
+    </div>
+  `;
+  
+  modal.classList.add('active');
+}
+
+function closeTaskModal() {
+  document.getElementById('taskDetailModal').classList.remove('active');
+}
+
+function completeTask(id) {
+  const task = AppState.tasks.find(t => t.id === id);
+  if (task) {
+    task.status = 'completed';
+    if (AppState.currentPage === 'tasks') renderTasks();
+    else if (AppState.currentPage === 'dashboard') renderDashboard();
+  }
+}
+
+function deleteTask(id) {
+  if (confirm('Are you sure you want to delete this task?')) {
+    AppState.tasks = AppState.tasks.filter(t => t.id !== id);
+    renderTasks();
+  }
+}
+
+function changeTaskPriority(id, priority) {
+  const task = AppState.tasks.find(t => t.id === id);
+  if (task) {
+    task.priority = priority;
+    viewTaskDetail(id);
+    if (AppState.currentPage === 'tasks') renderTasks();
+  }
+}
+
+function handleFileUpload(input, taskId) {
+  const task = AppState.tasks.find(t => t.id === taskId);
+  if (task && input.files.length > 0) {
+    Array.from(input.files).forEach(f => task.files.push(f.name));
+    viewTaskDetail(taskId);
+  }
+}
+
+function openCreateTaskModal() {
+  const modal = document.getElementById('createTaskModal');
+  const select = document.getElementById('newTaskAssignee');
+  const staff = AppState.users.filter(u => u.role === 'Staff');
+  select.innerHTML = staff.map(u => `<option value="${u.username}">${u.name} (${u.username})</option>`).join('');
+  modal.classList.add('active');
+}
+
+function closeCreateTaskModal() {
+  document.getElementById('createTaskModal').classList.remove('active');
+}
+
+function handleCreateTask(e) {
+  e.preventDefault();
+  const newTask = {
+    id: Date.now(),
+    title: document.getElementById('newTaskTitle').value,
+    desc: document.getElementById('newTaskDesc').value,
+    priority: document.getElementById('newTaskPriority').value,
+    status: 'pending',
+    deadline: document.getElementById('newTaskDeadline').value,
+    assignedTo: document.getElementById('newTaskAssignee').value,
+    files: [],
+    createdAt: new Date().toISOString()
+  };
+  AppState.tasks.push(newTask);
+  closeCreateTaskModal();
+  renderTasks();
+}
+
+// ==================== USER MANAGEMENT ====================
+function renderUsers() {
+  const content = document.getElementById('contentArea');
+  content.innerHTML = `
+    <div class="fade-in">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold">User Management</h2>
+        <button class="btn-primary" onclick="openCreateUserModal()">+ Add User</button>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        ${AppState.users.map(u => `
+          <div class="bg-white dark:bg-surface-800 rounded-xl p-5 card-hover border border-surface-100 dark:border-surface-700">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">${u.avatar}</div>
+              <div>
+                <p class="font-bold">${u.name}</p>
+                <p class="text-xs text-surface-500">@${u.username}</p>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="status-badge ${u.role === 'Super Admin' ? 'status-progress' : 'status-pending'}">${u.role}</span>
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full ${u.status === 'active' ? 'bg-green-500' : 'bg-red-500'}"></span>
+                <span class="text-xs ${u.status === 'active' ? 'text-green-600' : 'text-red-600'}">${u.status}</span>
+              </div>
+            </div>
+            <div class="flex gap-2 mt-3">
+              <button class="btn-secondary flex-1 text-xs" onclick="editUser(${u.id})">Edit</button>
+              <button class="btn-secondary flex-1 text-xs" onclick="resetUserPassword(${u.id})">Reset PW</button>
+              <button class="btn-secondary flex-1 text-xs ${u.status === 'active' ? 'text-red-600' : 'text-green-600'}" onclick="toggleUserStatus(${u.id})">${u.status === 'active' ? 'Suspend' : 'Activate'}</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      
+      <div class="bg-white dark:bg-surface-800 rounded-xl p-5 border border-surface-100 dark:border-surface-700">
+        <h3 class="font-bold mb-4">User Activity Summary</h3>
+        <table class="w-full text-left text-sm">
+          <thead class="bg-surface-50 dark:bg-surface-700">
+            <tr>
+              <th class="p-3 font-semibold text-surface-500">User</th>
+              <th class="p-3 font-semibold text-surface-500">Tasks Assigned</th>
+              <th class="p-3 font-semibold text-surface-500">Completed</th>
+              <th class="p-3 font-semibold text-surface-500">Completion Rate</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-100 dark:divide-surface-700">
+            ${AppState.users.filter(u => u.role !== 'Super Admin').map(u => {
+              const userTasks = AppState.tasks.filter(t => t.assignedTo === u.username);
+              const completed = userTasks.filter(t => t.status === 'completed').length;
+              const rate = userTasks.length > 0 ? Math.round((completed / userTasks.length) * 100) : 0;
+              return `
+                <tr class="hover:bg-surface-50 dark:hover:bg-surface-700/50">
+                  <td class="p-3 flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">${u.avatar}</div>
+                    <span class="font-medium">${u.name}</span>
+                  </td>
+                  <td class="p-3">${userTasks.length}</td>
+                  <td class="p-3">${completed}</td>
+                  <td class="p-3">
+                    <div class="flex items-center gap-2">
+                      <div class="flex-1 h-1.5 bg-surface-100 dark:bg-surface-700 rounded-full"><div class="h-full bg-blue-500 rounded-full" style="width: ${rate}%"></div></div>
+                      <span class="text-xs font-medium">${rate}%</span>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function toggleUserStatus(id) {
+  const user = AppState.users.find(u => u.id === id);
+  if (user) {
+    user.status = user.status === 'active' ? 'suspended' : 'active';
+    renderUsers();
+  }
+}
+
+function resetUserPassword(id) {
+  const user = AppState.users.find(u => u.id === id);
+  if (user) {
+    user.password = `${user.username}123`;
+    alert(`Password reset for ${user.name}. Temporary password: ${user.password}`);
+  }
+}
+
+function editUser(id) {
+  const user = AppState.users.find(u => u.id === id);
+  if (user) {
+    const newName = prompt('Enter new name:', user.name);
+    if (newName) {
+      user.name = newName;
+      user.avatar = newName.charAt(0).toUpperCase();
+      renderUsers();
+    }
+  }
+}
+
+function openCreateUserModal() {
+  const username = prompt('Enter username:');
+  if (!username) return;
+  const name = prompt('Enter full name:') || username;
+  const role = confirm('Make this user a Sub Admin? (Cancel for Staff)') ? 'Sub Admin' : 'Staff';
+  const newId = Math.max(...AppState.users.map(u => u.id)) + 1;
+  
+  const newUser = {
+    id: newId,
+    username,
+    password: `${username}123`,
+    role,
+    name,
+    avatar: name.charAt(0).toUpperCase(),
+    status: 'active',
+    email: `${username}@workflow.io`
+  };
+  
+  AppState.users.push(newUser);
+  renderUsers();
+  alert(`User ${name} created! Temporary password: ${newUser.password}`);
+}
+
+// ==================== KANBAN ====================
+function renderKanban() {
+  const content = document.getElementById('contentArea');
+  const columns = [
+    { key: 'todo', label: 'To Do', color: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20' },
+    { key: 'inprogress', label: 'In Progress', color: 'from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20' },
+    { key: 'review', label: 'Review', color: 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20' },
+    { key: 'done', label: 'Done', color: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20' }
+  ];
+  
+  content.innerHTML = `
+    <div class="fade-in">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold">Kanban Board</h2>
+        <button class="btn-primary" onclick="addKanbanCard()">+ Add Card</button>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto">
+        ${columns.map(col => `
+          <div class="bg-gradient-to-b ${col.color} rounded-xl p-4 kanban-col min-h-[400px]" 
+               id="col-${col.key}" 
+               ondragover="event.preventDefault(); this.style.outline='2px dashed #3b82f6'" 
+               ondragleave="this.style.outline='none'" 
+               ondrop="dropKanbanCard(event, '${col.key}'); this.style.outline='none'">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-bold text-sm">${col.label}</h3>
+              <span class="text-xs bg-white/80 dark:bg-surface-800/80 px-2.5 py-1 rounded-full font-medium">${AppState.kanbanTasks.filter(t => t.column === col.key).length}</span>
+            </div>
+            <div class="space-y-3">
+              ${AppState.kanbanTasks.filter(t => t.column === col.key).map(t => `
+                <div class="kanban-card bg-white dark:bg-surface-800 rounded-lg p-3 shadow-sm border border-surface-100 dark:border-surface-700" 
+                     draggable="true" 
+                     ondragstart="dragKanbanStart(event, '${t.id}')">
+                  <p class="text-sm font-medium mb-2">${t.title}</p>
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs px-2 py-0.5 rounded-full font-medium ${t.priority === 'High' ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400' : t.priority === 'Medium' ? 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' : 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400'}">${t.priority}</span>
+                    <button class="text-xs text-surface-400 hover:text-red-500 transition" onclick="removeKanbanCard('${t.id}')" title="Remove card">✕</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+let draggedKanbanId = null;
+
+function dragKanbanStart(e, id) {
+  draggedKanbanId = id;
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function dropKanbanCard(e, column) {
+  e.preventDefault();
+  if (draggedKanbanId) {
+    const card = AppState.kanbanTasks.find(t => t.id === draggedKanbanId);
+    if (card) {
+      card.column = column;
+      renderKanban();
+    }
+    draggedKanbanId = null;
+  }
+}
+
+function addKanbanCard() {
+  const title = prompt('Card Title:');
+  if (title) {
+    AppState.kanbanTasks.push({
+      id: 'k' + Date.now(),
+      title,
+      priority: 'Medium',
+      column: 'todo'
+    });
+    renderKanban();
+  }
+}
+
+function removeKanbanCard(id) {
+  AppState.kanbanTasks = AppState.kanbanTasks.filter(t => t.id !== id);
+  renderKanban();
+}
+
+// ==================== CHAT ====================
+let chatOpen = false;
+
+function renderChat() {
+  const content = document.getElementById('contentArea');
+  const contacts = AppState.users.filter(u => u.username !== (AppState.currentUser?.username || ''));
+  
+  content.innerHTML = `
+    <div class="fade-in">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" style="height: calc(100vh - 180px);">
+        <!-- Contacts List -->
+        <div class="bg-white dark:bg-surface-800 rounded-xl overflow-hidden border border-surface-100 dark:border-surface-700">
+          <div class="p-4 border-b border-surface-200 dark:border-surface-700">
+            <h3 class="font-bold">Contacts</h3>
+            <p class="text-xs text-surface-500 mt-0.5">${contacts.length} contacts online</p>
+          </div>
+          <div class="overflow-y-auto" style="height: calc(100% - 70px);">
+            ${contacts.map(c => `
+              <div class="flex items-center gap-3 p-4 hover:bg-surface-50 dark:hover:bg-surface-700/50 cursor-pointer transition border-b border-surface-100 dark:border-surface-700 last:border-0" onclick="openChat('${c.username}', '${c.name}')">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold flex-shrink-0">${c.avatar}</div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium text-sm truncate">${c.name}</p>
+                  <p class="text-xs text-green-500 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span> Online</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <!-- Chat Area -->
+        <div class="lg:col-span-2 bg-white dark:bg-surface-800 rounded-xl flex flex-col border border-surface-100 dark:border-surface-700" id="chatArea">
+          <div class="flex-1 flex items-center justify-center text-surface-400">
+            <div class="text-center">
+              <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              <p class="font-medium">Select a contact to start chatting</p>
+              <p class="text-sm text-surface-500 mt-1">Messages are end-to-end encrypted</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function openChatModal(target, name) {
+  AppState.chatTarget = { username: target, name };
+  
+  document.getElementById('chatTitle').textContent = name;
+  document.getElementById('chatAvatar').textContent = name.charAt(0);
+  
+  AppState.chatMessages = [
+    { sender: target, text: 'Hi there! How are the tasks coming along?', time: '10:30 AM', type: 'received' },
+    { sender: 'me', text: 'Going well! Almost done with the main deliverables.', time: '10:32 AM', type: 'sent' }
+  ];
+  
+  renderChatModalMessages();
+  document.getElementById('chatModal').classList.add('active');
+  chatOpen = true;
+}
+
+function openChat(target, name) {
+  AppState.chatTarget = { username: target, name };
+  
+  const chatArea = document.getElementById('chatArea');
+  
+  AppState.chatMessages = [
+    { sender: target, text: `Hey ${AppState.currentUser.name}! 👋`, time: '10:30 AM', type: 'received' },
+    { sender: 'me', text: 'Hi! How are you doing today?', time: '10:31 AM', type: 'sent' },
+    { sender: target, text: 'Great! Let\'s catch up on the latest tasks.', time: '10:32 AM', type: 'received' }
+  ];
+  
+  chatArea.innerHTML = `
+    <div class="p-4 border-b border-surface-200 dark:border-surface-700 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold flex-shrink-0">${name.charAt(0)}</div>
+      <div>
+        <p class="font-bold">${name}</p>
+        <p class="text-xs text-green-500 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span> Online</p>
+      </div>
+    </div>
+    <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-1" id="inlineChatMessages">
+      ${AppState.chatMessages.map(m => `
+        <div class="${m.type === 'sent' ? 'chat-bubble chat-sent' : 'chat-bubble chat-received'}">
+          <p class="text-sm">${m.text}</p>
+          <p class="text-xs opacity-60 mt-1 text-right">${m.time}</p>
+        </div>
+      `).join('')}
+    </div>
+    <div class="p-3 border-t border-surface-200 dark:border-surface-700 flex items-center gap-2">
+      <button class="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition" title="Attach file">
+        <svg class="w-5 h-5 text-surface-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+      </button>
+      <input type="text" id="inlineChatInput" class="flex-1 input-field" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendInlineMessage()">
+      <button class="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition" title="Voice message">
+        <svg class="w-5 h-5 text-surface-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+      </button>
+      <button class="btn-primary rounded-full w-10 h-10 p-0 flex items-center justify-center" onclick="sendInlineMessage()">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+      </button>
+    </div>
+  `;
+}
+
+function sendInlineMessage() {
+  const input = document.getElementById('inlineChatInput');
+  const text = input.value.trim();
+  if (!text || !AppState.chatTarget) return;
+  
+  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
+  AppState.chatMessages.push({
+    sender: 'me',
+    text,
+    time,
+    type: 'sent'
+  });
+  
+  input.value = '';
+  
+  const container = document.getElementById('inlineChatMessages');
+  if (container) {
+    container.innerHTML = AppState.chatMessages.map(m => `
+      <div class="${m.type === 'sent' ? 'chat-bubble chat-sent' : 'chat-bubble chat-received'} fade-in">
+        <p class="text-sm">${m.text}</p>
+        <p class="text-xs opacity-60 mt-1 text-right">${m.time}</p>
+      </div>
+    `).join('');
+    container.scrollTop = container.scrollHeight;
+  }
+  
+  // Simulate reply
+  setTimeout(() => {
+    const replies = [
+      'Thanks for the update! Keep up the great work 👍',
+      'Got it, I\'ll look into that right away.',
+      'Sounds good! Let me know if you need any help.',
+      'Perfect, let\'s sync up on this tomorrow morning.',
+      'Excellent progress! The team will be happy to hear this.'
+    ];
+    
+    AppState.chatMessages.push({
+      sender: AppState.chatTarget.username,
+      text: replies[Math.floor(Math.random() * replies.length)],
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      type: 'received'
+    });
+    
+    const updatedContainer = document.getElementById('inlineChatMessages');
+    if (updatedContainer) {
+      updatedContainer.innerHTML = AppState.chatMessages.map(m => `
+        <div class="${m.type === 'sent' ? 'chat-bubble chat-sent' : 'chat-bubble chat-received'} fade-in">
+          <p class="text-sm">${m.text}</p>
+          <p class="text-xs opacity-60 mt-1 text-right">${m.time}</p>
+        </div>
+      `).join('');
+      updatedContainer.scrollTop = updatedContainer.scrollHeight;
+    }
+  }, 1500 + Math.random() * 1000);
+}
+
+function renderChatModalMessages() {
+  const container = document.getElementById('chatMessages');
+  container.innerHTML = AppState.chatMessages.map(m => `
+    <div class="${m.type === 'sent' ? 'chat-bubble chat-sent' : 'chat-bubble chat-received'} fade-in">
+      <p class="text-sm">${m.text}</p>
+      <p class="text-xs opacity-60 mt-1 text-right">${m.time}</p>
+    </div>
+  `).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || !AppState.chatTarget) return;
+  
+  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
+  AppState.chatMessages.push({
+    sender: 'me',
+    text,
+    time,
+    type: 'sent'
+  });
+  
+  input.value = '';
+  renderChatModalMessages();
+  
+  setTimeout(() => {
+    const replies = ['Thanks for the update! 👍', 'Got it, will do!', 'Sounds great!'];
+    AppState.chatMessages.push({
+      sender: AppState.chatTarget.username,
+      text: replies[Math.floor(Math.random() * replies.length)],
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      type: 'received'
+    });
+    renderChatModalMessages();
+  }, 1500);
+}
+
+function closeChat() {
+  document.getElementById('chatModal').classList.remove('active');
+  chatOpen = false;
+}
+
+// ==================== SOCIAL MEDIA ====================
+function renderSocialMedia() {
+  const content = document.getElementById('contentArea');
+  
+  const platformStyles = {
+    Instagram: { icon: '📷', gradient: 'from-purple-500 via-pink-500 to-orange-500', bg: 'from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20' },
+    Facebook: { icon: '📘', gradient: 'from-blue-600 to-blue-800', bg: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20' },
+    LinkedIn: { icon: '💼', gradient: 'from-blue-500 to-blue-700', bg: 'from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20' },
+    'Twitter/X': { icon: '🐦', gradient: 'from-gray-700 to-gray-900', bg: 'from-gray-50 to-gray-100 dark:from-gray-800/30 dark:to-gray-900/30' },
+    Threads: { icon: '🧵', gradient: 'from-gray-800 to-black', bg: 'from-gray-50 to-gray-100 dark:from-gray-800/30 dark:to-gray-900/30' },
+    YouTube: { icon: '▶️', gradient: 'from-red-500 to-red-700', bg: 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20' },
+    WhatsApp: { icon: '💬', gradient: 'from-green-500 to-green-700', bg: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20' }
+  };
+  
+  content.innerHTML = `
+    <div class="fade-in space-y-6">
+      <!-- Connected Accounts -->
+      <div>
+        <h2 class="text-xl font-bold mb-4">Connected Accounts</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+          ${AppState.socialAccounts.map(acc => {
+            const ps = platformStyles[acc.platform] || { icon: '🔗', gradient: 'from-gray-400 to-gray-600', bg: 'from-gray-50 to-gray-100 dark:from-gray-800/30 dark:to-gray-900/30' };
+            return `
+              <div class="bg-gradient-to-b ${ps.bg} rounded-xl p-4 text-center card-hover border border-surface-100 dark:border-surface-700 relative">
+                <div class="w-12 h-12 mx-auto mb-2 rounded-xl bg-gradient-to-br ${ps.gradient} flex items-center justify-center text-xl shadow-md">${ps.icon}</div>
+                <p class="text-sm font-medium mb-1">${acc.platform}</p>
+                ${acc.connected ? `
+                  <span class="text-xs text-green-600 font-semibold flex items-center justify-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span> Connected</span>
+                  <p class="text-xs text-surface-500 mt-0.5">${acc.followers.toLocaleString()} followers</p>
+                ` : `
+                  <button class="text-xs text-blue-600 dark:text-blue-400 font-semibold mt-1 hover:underline" onclick="connectSocialAccount('${acc.platform}')">Connect</button>
+                `}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+      
+      <!-- AI Content Creator -->
+      <div class="bg-white dark:bg-surface-800 rounded-xl p-5 border border-surface-100 dark:border-surface-700">
+        <h3 class="font-bold mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          AI Content Creator
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Post Topic</label>
+            <input type="text" id="postTopic" class="input-field" placeholder="e.g., Product launch announcement">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Tone</label>
+            <select id="postTone" class="input-field">
+              <option>Professional</option>
+              <option>Casual</option>
+              <option>Humorous</option>
+              <option>Inspirational</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary mt-3" onclick="generateAIContent()">
+          <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          Generate Content
+        </button>
+        <div id="aiContentResult" class="mt-3 hidden">
+          <div class="bg-surface-50 dark:bg-surface-700 rounded-lg p-4 border border-surface-200 dark:border-surface-600">
+            <p class="text-sm whitespace-pre-line" id="generatedContent"></p>
+            <div class="mt-3 flex gap-2 flex-wrap">
+              ${['#Marketing','#Growth','#Digital','#Success','#Innovation','#Productivity'].map(t => `<span class="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-900/50 transition" onclick="addHashtag('${t}')">${t}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Create Post -->
+      <div class="bg-white dark:bg-surface-800 rounded-xl p-5 border border-surface-100 dark:border-surface-700">
+        <h3 class="font-bold mb-4">Create New Post</h3>
+        <div class="space-y-4">
+          <textarea id="postContent" class="input-field" rows="3" placeholder="What's on your mind?"></textarea>
+          <div>
+            <label class="block text-sm font-medium mb-2">Target Platforms</label>
+            <div class="flex flex-wrap gap-2">
+              ${AppState.socialAccounts.filter(a => a.connected).map(acc => `
+                <label class="flex items-center gap-2 text-sm cursor-pointer bg-surface-50 dark:bg-surface-700 px-3 py-2 rounded-lg">
+                  <input type="checkbox" class="rounded border-surface-300 text-blue-500 focus:ring-blue-500" checked value="${acc.platform}">
+                  ${acc.platform}
+                </label>
+              `).join('')}
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Schedule Date</label>
+              <input type="date" id="postDate" class="input-field">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Schedule Time</label>
+              <input type="time" id="postTime" class="input-field">
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button class="btn-secondary text-sm" onclick="document.getElementById('mediaUpload').click()">
+              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              Add Media
+            </button>
+            <input type="file" id="mediaUpload" class="hidden" accept="image/*,video/*">
+            <button class="btn-primary text-sm" onclick="publishPost()">Publish Now</button>
+            <button class="btn-secondary text-sm" onclick="schedulePost()">Schedule</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Recent Posts -->
+      <div class="bg-white dark:bg-surface-800 rounded-xl p-5 border border-surface-100 dark:border-surface-700">
+        <h3 class="font-bold mb-4">Recent Posts</h3>
+        <div class="space-y-3">
+          ${AppState.socialPosts.map(post => `
+            <div class="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
+              <p class="text-sm mb-3">${post.content}</p>
+              <div class="flex items-center gap-4 text-xs text-surface-500 flex-wrap">
+                <span class="flex items-center gap-1">❤️ ${post.engagement.likes}</span>
+                <span class="flex items-center gap-1">💬 ${post.engagement.comments}</span>
+                <span class="flex items-center gap-1">🔄 ${post.engagement.shares}</span>
+                <span class="ml-auto">${post.date}</span>
+                <span class="status-badge ${post.status === 'published' ? 'status-completed' : 'status-pending'}">${post.status}</span>
+              </div>
+              <div class="flex gap-1 mt-2 flex-wrap">
+                ${post.platforms.map(p => `<span class="text-xs px-2 py-0.5 bg-surface-100 dark:bg-surface-700 rounded-full">${p}</span>`).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      
+      <!-- Social Analytics Preview -->
+      <div class="bg-white dark:bg-surface-800 rounded-xl p-5 border border-surface-100 dark:border-surface-700">
+        <h3 class="font-bold mb-4">Engagement Analytics</h3>
+        <canvas id="socialChart" height="200"></canvas>
+      </div>
+    </div>
+  `;
+  
+  setTimeout(() => {
+    const ctx = document.getElementById('socialChart');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Apr 1', 'Apr 3', 'Apr 5', 'Apr 7', 'Apr 9'],
+          datasets: [
+            { label: 'Instagram', data: [120, 145, 132, 178, 203], borderColor: '#e91e63', backgroundColor: 'rgba(233,30,99,0.1)', tension: 0.4, fill: true },
+            { label: 'Facebook', data: [80, 95, 88, 112, 125], borderColor: '#1877f2', backgroundColor: 'rgba(24,119,242,0.1)', tension: 0.4, fill: true },
+            { label: 'LinkedIn', data: [45, 52, 48, 61, 58], borderColor: '#0077b5', backgroundColor: 'rgba(0,119,181,0.1)', tension: 0.4, fill: true }
+          ]
+        },
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'top', labels: { usePointStyle: true } } }, 
+          scales: { y: { beginAtZero: true, grid: { color: AppState.darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' } } } 
+        }
+      });
+    }
+  }, 100);
+}
+
+function connectSocialAccount(platform) {
+  const acc = AppState.socialAccounts.find(a => a.platform === platform);
+  if (acc) {
+    acc.connected = true;
+    acc.followers = Math.floor(Math.random() * 10000) + 1000;
+    acc.lastSync = 'Just now';
+    renderSocialMedia();
+  }
+}
+
+function generateAIContent() {
+  const topic = document.getElementById('postTopic').value || 'Productivity';
+  const tone = document.getElementById('postTone').value;
+  
+  const templates = {
+    Professional: `🚀 We're excited to share insights about ${topic}.\n\nOur recent data shows a 35% increase in productivity when using workflow automation tools. The future of work is here, and we're leading the charge.\n\nLearn more about how we can help your organization achieve similar results.`,
+    Casual: `Hey everyone! 👋 Just wanted to share something cool about ${topic}.\n\nTurns out, teams that use smart workflow tools get way more done – like 35% more! 🤯\n\nDrop a 🔥 if you want to know our secret sauce!`,
+    Humorous: `Breaking news: ${topic} is officially more popular than office coffee ☕\n\nOur data shows teams are 35% more productive with automation. Sorry, baristas – the robots are winning this one 😄\n\nBut seriously, our tools actually work! Check them out.`,
+    Inspirational: `✨ Every great journey starts with a single step. Today, we're taking that step with ${topic}.\n\nA 35% boost in productivity isn't just a number – it's 35% more time for what truly matters. Together, we achieve greatness!\n\nJoin us on this exciting journey. 🌟`
+  };
+  
+  const content = templates[tone] || templates.Professional;
+  
+  document.getElementById('aiContentResult').classList.remove('hidden');
+  document.getElementById('generatedContent').textContent = content;
+  document.getElementById('postContent').value = content;
+}
+
+function addHashtag(tag) {
+  const input = document.getElementById('postContent');
+  input.value += ' ' + tag;
+}
+
+function publishPost() {
+  const content = document.getElementById('postContent').value;
+  if (!content) { alert('Please enter post content'); return; }
+  
+  const platforms = [];
+  document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => platforms.push(cb.value));
+  
+  AppState.socialPosts.unshift({
+    id: Date.now(),
+    content,
+    platforms: platforms.length ? platforms : ['Instagram'],
+    status: 'published',
+    engagement: { likes: 0, comments: 0, shares: 0 },
+    date: new Date().toISOString().split('T')[0]
+  });
+  
+  renderSocialMedia();
+}
+
+function schedulePost() {
+  const date = document.getElementById('postDate').value;
+  const time = document.getElementById('postTime').value;
+  if (!date || !time) { alert('Please select date and time'); return; }
+  alert(`Post scheduled for ${date} at ${time}\n\nIn production, this would be queued for automated publishing.`);
+}
+
+// ==================== ANALYTICS ====================
+let trendChartInstance = null;
+let distributionChartInstance = null;
+let productivityChartInstance = null;
+
+function renderAnalytics() {
+  const content = document.getElementById('contentArea');
+  content.innerHTML = `
+    <div class="fade-in space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-white dark:bg-surface-800 rounded-xl p-5 border border-surface-100 dark:border-surface-700">
+          <h3 class="text-sm font-medium text-surface-500 mb-2">Avg. Completion Rate</h3>
+          <p class="text-3xl font-bold text-surface-800 dark:text-white">78%</p>
+          <div class="h-2 bg-surface-100 dark:bg-surface-700 rounded-full mt-3 overflow-hidden">
+            <div class="h-full bg-green-500 rounded-full transition-all duration-500" style="width: 78%"></div>
+          </div>
+          <p class="text-xs text-green-600 mt-2">↑ 5% vs last week</p>
+        </div>
+        <div class="bg-white dark:bg-surface-800 rounded-xl p-5 border border-surface-100 dark:border-surface-700">
+          <h3 class="text-sm font-medium text-surface-500 mb-2">Tasks/Day Average</h3>
+          <p class="text-3xl font-bold text-surface-800 dark:text-white">4.2</p>
+          <div class="h-2 bg-surface-100 dark:bg-surface-700 rounded-full mt-3 overflow-hidden">
+            <div class="h-full bg-blue-500 rounded-full transition-all duration-500" style="width: 60%"></div>
+          </div>
+          <p class="text-xs text-green-600 mt-2">↑ 12% vs last month</p>
+        </div>
+        <div class="bg-white dark:bg-surface-800 rounded-xl p-5 border border-surface-100 dark:border-surface-700">
+          <h3 class="text-sm font-medium text-surface-500 mb-2">On-Time Delivery</h3>
+          <p class="text-3xl font-bold text-surface-800 dark:text-white">91%</p>
+          <div class="h-2 bg-surface-100 dark:bg-surface-700 rounded-full mt-3 overflow-hidden">
+            <div class="h-full bg-purple-500 rounded-full transition-all duration-500" style="width: 91%"></div>
+          </div>
+          <p class="text-xs text-green-600 mt-2">↑ 8% improvement</p>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-surface-800 rounded-xl p-5 border border-surface-100 dark:border-surface-700">
+          <h3 class="font-bold mb-4">Task Completion Trend</h3>
+          <canvas id="trendChart" height="250"></canvas>
+        </div>
+        <div class="bg-white dark:bg-surface-800 rounded-xl p-5 border border-surface-100 dark:border-surface-700">
+          <h3 class="font-bold mb-4">Task Distribution</h3>
+          <canvas id="distributionChart" height="250"></canvas>
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-surface-800 rounded-xl p-5 border border-surface-100 dark:border-surface-700">
+        <h3 class="font-bold mb-4">Team Productivity Comparison</h3>
+        <canvas id="productivityChart" height="200"></canvas>
+      </div>
+    </div>
+  `;
+  
+  setTimeout(() => {
+    renderTrendChart();
+    renderDistributionChart();
+    renderProductivityChart();
+  }, 100);
+}
+
+function renderTrendChart() {
+  const ctx = document.getElementById('trendChart');
+  if (!ctx) return;
+  if (trendChartInstance) trendChartInstance.destroy();
+  
+  trendChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+      datasets: [{
+        label: 'Tasks Completed',
+        data: [18, 22, 25, 21],
+        backgroundColor: '#3b82f6',
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, grid: { color: AppState.darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } }
+    }
+  });
+}
+
+function renderDistributionChart() {
+  const ctx = document.getElementById('distributionChart');
+  if (!ctx) return;
+  if (distributionChartInstance) distributionChartInstance.destroy();
+  
+  distributionChartInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Completed', 'In Progress', 'Pending'],
+      datasets: [{
+        data: [45, 25, 30],
+        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15 } }
+      }
+    }
+  });
+}
+
+function renderProductivityChart() {
+  const ctx = document.getElementById('productivityChart');
+  if (!ctx) return;
+  if (productivityChartInstance) productivityChartInstance.destroy();
+  
+  productivityChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+      datasets: [
+        { label: 'Sarah J.', data: [8, 6, 9, 7, 8], borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', tension: 0.3, fill: true },
+        { label: 'Mike C.', data: [5, 7, 6, 8, 7], borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)', tension: 0.3, fill: true },
+        { label: 'Emily R.', data: [6, 8, 7, 9, 8], borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.1)', tension: 0.3, fill: true }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', labels: { usePointStyle: true } } },
+      scales: { y: { beginAtZero: true, grid: { color: AppState.darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } }
+    }
+  });
+}
+
+// ==================== REPORTS ====================
+function renderReports() {
+  const content = document.getElementById('contentArea');
+  content.innerHTML = `
+    <div class="fade-in space-y-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold">Reports & Export</h2>
+        <div class="flex gap-2">
+          <button class="btn-secondary" onclick="exportToCSV()">📊 Export CSV</button>
+          <button class="btn-secondary" onclick="syncToGoogleSheets()">📈 Sync to Google Sheets</button>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-white dark:bg-surface-800 rounded-xl p-5 card-hover border border-surface-100 dark:border-surface-700">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-3">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <h3 class="font-bold">Productivity Report</h3>
+          <p class="text-sm text-surface-500 mt-1">Monthly task completion analysis and team performance metrics</p>
+          <button class="btn-primary text-sm mt-3 w-full" onclick="generateReport('productivity')">Generate Report</button>
+        </div>
+        
+        <div class="bg-white dark:bg-surface-800 rounded-xl p-5 card-hover border border-surface-100 dark:border-surface-700">
+          <div class="w-12 h-12 rounded-xl bg-green-50 dark:bg-green-900/30 flex items-center justify-center mb-3">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <h3 class="font-bold">Financial Report</h3>
+          <p class="text-sm text-surface-500 mt-1">Budget allocation, expenses, and ROI analysis</p>
+          <button class="btn-primary text-sm mt-3 w-full" onclick="generateReport('financial')">Generate Report</button>
+        </div>
+        
+        <div class="bg-white dark:bg-surface-800 rounded-xl p-5 card-hover border border-surface-100 dark:border-surface-700">
+          <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center mb-3">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <h3 class="font-bold">Social Media Report</h3>
+          <p class="text-sm text-surface-500 mt-1">Engagement metrics, follower growth, and post performance</p>
+          <button class="btn-primary text-sm mt-3 w-full" onclick="generateReport('social')">Generate Report</button>
+        </div>
+      </div>
+      
+      <div id="reportOutput" class="hidden bg-white dark:bg-surface-800 rounded-xl p-5 border border-surface-100 dark:border-surface-700 fade-in">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold" id="reportTitle">Generated Report</h3>
+          <button class="btn-secondary text-sm" onclick="exportToCSV()">Download CSV</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-surface-50 dark:bg-surface-700">
+              <tr>
+                <th class="p-3 font-semibold text-surface-500">Metric</th>
+                <th class="p-3 font-semibold text-surface-500">Value</th>
+                <th class="p-3 font-semibold text-surface-500">Change</th>
+                <th class="p-3 font-semibold text-surface-500">Trend</th>
+              </tr>
+            </thead>
+            <tbody id="reportTableBody" class="divide-y divide-surface-100 dark:divide-surface-700"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function generateReport(type) {
+  const output = document.getElementById('reportOutput');
+  const tbody = document.getElementById('reportTableBody');
+  const title = document.getElementById('reportTitle');
+  
+  const reports = {
+    productivity: {
+      title: 'Productivity Report',
+      data: [
+        { metric: 'Total Tasks', value: AppState.tasks.length.toString(), change: '+12%', trend: 'up' },
+        { metric: 'Completed Tasks', value: AppState.tasks.filter(t => t.status === 'completed').length.toString(), change: '+8%', trend: 'up' },
+        { metric: 'In Progress', value: AppState.tasks.filter(t => t.status === 'progress').length.toString(), change: '-3%', trend: 'down' },
+        { metric: 'Pending Tasks', value: AppState.tasks.filter(t => t.status === 'pending').length.toString(), change: '-5%', trend: 'down' },
+        { metric: 'Avg Completion Time', value: '2.3 days', change: '-0.5 days', trend: 'up' },
+        { metric: 'Productivity Rate', value: '78%', change: '+5%', trend: 'up' }
+      ]
+    },
+    financial: {
+      title: 'Financial Report',
+      data: [
+        { metric: 'Total Budget', value: '$45,000', change: '+10%', trend: 'up' },
+        { metric: 'Amount Spent', value: '$32,450', change: '+8%', trend: 'up' },
+        { metric: 'Remaining Budget', value: '$12,550', change: '-5%', trend: 'down' },
+        { metric: 'ROI', value: '234%', change: '+15%', trend: 'up' },
+        { metric: 'Cost per Task', value: '$128', change: '-$12', trend: 'up' }
+      ]
+    },
+    social: {
+      title: 'Social Media Report',
+      data: [
+        { metric: 'Total Followers', value: AppState.socialAccounts.reduce((a,b) => a + b.followers, 0).toLocaleString(), change: '+12%', trend: 'up' },
+        { metric: 'Total Posts', value: AppState.socialAccounts.reduce((a,b) => a + b.posts, 0).toString(), change: '+8%', trend: 'up' },
+        { metric: 'Avg Engagement Rate', value: '4.2%', change: '+0.8%', trend: 'up' },
+        { metric: 'Total Reach', value: '125K', change: '+18%', trend: 'up' },
+        { metric: 'Connected Platforms', value: AppState.socialAccounts.filter(a => a.connected).length.toString(), change: '+1', trend: 'up' }
+      ]
+    }
+  };
+  
+  const report = reports[type];
+  if (!report) return;
+  
+  title.textContent = report.title;
+  
+  tbody.innerHTML = report.data.map(d => `
+    <tr class="hover:bg-surface-50 dark:hover:bg-surface-700/50 transition">
+      <td class="p-3 font-medium">${d.metric}</td>
+      <td class="p-3">${d.value}</td>
+      <td class="p-3 ${d.trend === 'up' ? 'text-green-600' : 'text-red-600'}">${d.change}</td>
+      <td class="p-3">${d.trend === 'up' ? '📈' : '📉'}</td>
+    </tr>
+  `).join('');
+  
+  output.classList.remove('hidden');
+  output.scrollIntoView({ behavior: 'smooth' });
+}
+
+function exportToCSV() {
+  const headers = ['ID', 'Title', 'Priority', 'Status', 'Deadline', 'Assigned To', 'Files'];
+  const rows = AppState.tasks.map(t => [t.id, `"${t.title}"`, t.priority, t.status, t.deadline, t.assignedTo, t.files.join('; ')]);
+  
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `workflow_report_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function syncToGoogleSheets() {
+  alert('📈 Syncing to Google Sheets...\n\nIn production, this would:\n1. Authenticate with Google OAuth2\n2. Create a new spreadsheet or access existing\n3. Append task data rows\n4. Set up formulas for analytics\n5. Share with designated stakeholders\n\nYour data is being prepared for export...');
+}
+
+// ==================== NOTIFICATIONS ====================
+function loadNotifications() {
+  AppState.notifications = [
+    { id: 1, title: 'New Task Assigned', msg: 'You have a new high-priority task: Update client database', time: '5 mins ago', read: false },
+    { id: 2, title: 'Security Alert', msg: 'Failed login attempt detected from unknown location', time: '1 hour ago', read: false },
+    { id: 3, title: 'Report Ready', msg: 'Monthly productivity report is ready for review', time: '2 hours ago', read: false },
+    { id: 4, title: 'Task Completed', msg: 'Sarah Johnson completed "Design marketing banner"', time: '3 hours ago', read: true },
+    { id: 5, title: 'System Update', msg: 'Workflow v2.1 has been deployed with new features', time: 'Yesterday', read: true }
+  ];
+  updateNotificationBadge();
+}
+
+function updateNotificationBadge() {
+  const unread = AppState.notifications.filter(n => !n.read).length;
+  const badge = document.getElementById('notifBadge');
+  if (badge) {
+    badge.textContent = unread;
+    badge.style.display = unread > 0 ? 'flex' : 'none';
+  }
+}
+
+function toggleNotifications() {
+  const panel = document.getElementById('notificationPanel');
+  const isVisible = panel.style.display === 'block';
+  panel.style.display = isVisible ? 'none' : 'block';
+  
+  if (!isVisible) {
+    const list = document.getElementById('notificationList');
+    list.innerHTML = AppState.notifications.map(n => `
+      <div class="p-3 rounded-lg ${n.read ? '' : 'bg-blue-50 dark:bg-blue-900/20'} border-l-2 ${n.read ? 'border-surface-200 dark:border-surface-700' : 'border-blue-500'} cursor-pointer hover:bg-surface-50 dark:hover:bg-surface-700/50 transition" onclick="markRead(${n.id})">
+        <div class="flex justify-between items-start">
+          <p class="text-sm font-medium">${n.title}</p>
+          <span class="text-xs text-surface-400 flex-shrink-0 ml-2">${n.time}</span>
+        </div>
+        <p class="text-xs text-surface-500 mt-1">${n.msg}</p>
+      </div>
+    `).join('');
+  }
+}
+
+function markRead(id) {
+  const notif = AppState.notifications.find(n => n.id === id);
+  if (notif) {
+    notif.read = true;
+    updateNotificationBadge();
+    toggleNotifications();
+  }
+}
+
+function markAllRead() {
+  AppState.notifications.forEach(n => n.read = true);
+  updateNotificationBadge();
+  toggleNotifications();
+}
+
+// ==================== LOGOUT ====================
+function logout() {
+  if (AppState.cameraStream) {
+    AppState.cameraStream.getTracks().forEach(track => track.stop());
+    AppState.cameraStream = null;
+  }
+  
+  // Destroy chart instances
+  [weeklyChartInstance, teamChartInstance, trendChartInstance, distributionChartInstance, productivityChartInstance].forEach(chart => {
+    if (chart) chart.destroy();
+  });
+  weeklyChartInstance = null;
+  teamChartInstance = null;
+  trendChartInstance = null;
+  distributionChartInstance = null;
+  productivityChartInstance = null;
+  
+  AppState.currentUser = null;
+  AppState.currentPage = 'dashboard';
+  
+  document.getElementById('dashboardScreen').style.display = 'none';
+  document.getElementById('faceScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+// ==================== INIT ====================
+loadTheme();
+
+// Close modals on backdrop click
+document.querySelectorAll('.modal').forEach(m => {
+  m.addEventListener('click', e => {
+    if (e.target === m) {
+      m.classList.remove('active');
+      if (m.id === 'chatModal') chatOpen = false;
+    }
+  });
+});
+
+// Close notifications on outside click
+document.addEventListener('click', e => {
+  const panel = document.getElementById('notificationPanel');
+  if (panel && panel.style.display === 'block' && !panel.contains(e.target) && !e.target.closest('[onclick*="toggleNotifications"]')) {
+    panel.style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>
+
